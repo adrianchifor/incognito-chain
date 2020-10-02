@@ -625,7 +625,6 @@ func (ef *FeeEstimator) EstimateFee(numBlocks uint64, tokenId *common.Hash) (Coi
 	if ef.cached == nil {
 		ef.cached = ef.estimates(tokenId)
 	}
-
 	result := ef.cached[int(numBlocks)-1]
 	return result, nil
 }

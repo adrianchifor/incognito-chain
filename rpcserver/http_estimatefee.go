@@ -89,13 +89,9 @@ func (httpServer *HttpServer) handleEstimateFee(params interface{}, closeChan <-
 		if err.(*rpcservice.RPCError) != nil {
 			return nil, err.(*rpcservice.RPCError)
 		}
-		Logger.log.Errorf("len(customPrivacyTokenParam.TokenInput) ", len(customPrivacyTokenParam.TokenInput))
-		Logger.log.Errorf("len(customPrivacyTokenParam.Receiver) ", len(customPrivacyTokenParam.Receiver))
 	}
 
 	beaconHeight := httpServer.blockService.BlockChain.GetBeaconBestState().BestBlock.GetHeight()
-	Logger.log.Errorf("outCoins: %v", len(outCoins))
-	Logger.log.Errorf("paymentInfos: %v", len(paymentInfos))
 	estimateFee, estimateFeeCoinPerKb, estimateTxSizeInKb, err2 := httpServer.txService.EstimateFee(
 		defaultFeeCoinPerKb, isGetPTokenFee, outCoins, paymentInfos, shardIDSender, 8, hasPrivacy,
 		nil, customPrivacyTokenParam, int64(beaconHeight))
