@@ -311,6 +311,14 @@ func GetAllCommitteeStakeInfo(stateDB *StateDB, shardIDs []int) map[int][]*Stake
 	return stateDB.getShardsCommitteeInfo(shardIDs)
 }
 
+func GetAllRewardReceivers(bcDB *StateDB) map[string]string {
+	res, err := bcDB.getAllRewardReceivers([]int{0, 1, 2, 3, 4, 5, 6, 7})
+	if err != nil {
+		panic(err)
+	}
+	return res
+}
+
 func GetMapAutoStaking(bcDB *StateDB, shardIDs []int) map[string]bool {
 	res, err := bcDB.getMapAutoStaking(shardIDs)
 	if err != nil {

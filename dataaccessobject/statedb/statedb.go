@@ -865,6 +865,58 @@ func (stateDB *StateDB) getMapAutoStaking(ids []int) (map[string]bool, error) {
 	return mapAutoStaking, nil
 }
 
+func (stateDB *StateDB) getAllRewardReceivers(ids []int) (map[string]string, error) {
+	allStaker := []*CommitteeState{}
+	result := make(map[string]string)
+
+	// Current Beacon Validator
+	prefixCurrentValidator := GetCommitteePrefixWithRole(CurrentValidator, -1)
+	resCurrentValidator := stateDB.iterateWithCommitteeState(prefixCurrentValidator)
+	allStaker = append(allStaker, resCurrentValidator...)
+	// Substitute Beacon Validator
+	prefixSubstituteValidator := GetCommitteePrefixWithRole(SubstituteValidator, -1)
+	resSubstituteValidator := stateDB.iterateWithCommitteeState(prefixSubstituteValidator)
+	allStaker = append(allStaker, resSubstituteValidator...)
+
+	for _, shardID := range ids {
+		// Current Shard Validator
+		prefixCurrentValidator := GetCommitteePrefixWithRole(CurrentValidator, shardID)
+		resCurrentValidator := stateDB.iterateWithCommitteeState(prefixCurrentValidator)
+		allStaker = append(allStaker, resCurrentValidator...)
+		// Substitute Shard sValidator
+		prefixSubstituteValidator := GetCommitteePrefixWithRole(SubstituteValidator, shardID)
+		resSubstituteValidator := stateDB.iterateWithCommitteeState(prefixSubstituteValidator)
+		allStaker = append(allStaker, resSubstituteValidator...)
+	}
+	// next epoch candidate
+	prefixNextEpochCandidate := GetCommitteePrefixWithRole(NextEpochShardCandidate, -2)
+	resNextEpochCandidate := stateDB.iterateWithCommitteeState(prefixNextEpochCandidate)
+	allStaker = append(allStaker, resNextEpochCandidate...)
+	// current epoch candidate
+	prefixCurrentEpochCandidate := GetCommitteePrefixWithRole(CurrentEpochShardCandidate, -2)
+	resCurrentEpochCandidate := stateDB.iterateWithCommitteeState(prefixCurrentEpochCandidate)
+	allStaker = append(allStaker, resCurrentEpochCandidate...)
+
+	// next epoch candidate
+	prefixNextEpochBeaconCandidate := GetCommitteePrefixWithRole(NextEpochBeaconCandidate, -2)
+	resNextEpochBeaconCandidate := stateDB.iterateWithCommitteeState(prefixNextEpochBeaconCandidate)
+	allStaker = append(allStaker, resNextEpochBeaconCandidate...)
+	// current epoch candidate
+	prefixCurrentEpochBeaconCandidate := GetCommitteePrefixWithRole(CurrentEpochBeaconCandidate, -2)
+	resCurrentEpochBeaconCandidate := stateDB.iterateWithCommitteeState(prefixCurrentEpochBeaconCandidate)
+	allStaker = append(allStaker, resCurrentEpochBeaconCandidate...)
+	for _, v := range allStaker {
+		pubKeyBytes, _ := v.committeePublicKey.RawBytes()
+		key := GetStakerInfoKey(pubKeyBytes)
+		stakerInfo, _, err := stateDB.getStakerInfo(key)
+		if err != nil {
+			return nil, err
+		}
+		result[v.committeePublicKey.GetIncKeyBase58()] = base58.Base58Check{}.Encode(stakerInfo.rewardReceiver.Pk, common.ZeroByte)
+	}
+	return result, nil
+}
+
 // ================================= Reward Request OBJECT =======================================
 func (stateDB *StateDB) getRewardRequestState(key common.Hash) (*RewardRequestState, bool, error) {
 	rewardRequestState, err := stateDB.getStateObject(RewardRequestObjectType, key)

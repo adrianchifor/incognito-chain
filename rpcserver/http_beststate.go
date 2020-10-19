@@ -248,3 +248,11 @@ func (httpServer *HttpServer) handleGetTotalStaker(params interface{}, closeChan
 	result := jsonresult.NewGetTotalStaker(total)
 	return result, nil
 }
+
+func (httpServer *HttpServer) hanldeGetAllRewardReceivers(params interface{}, closeChan <-chan struct{}) (interface{}, *rpcservice.RPCError) {
+
+	result := statedb.GetAllRewardReceivers(httpServer.blockService.BlockChain.GetBeaconBestState().GetBeaconConsensusStateDB())
+
+	// result := jsonresult.NewGetBeaconBestState(beaconBestState)
+	return result, nil
+}

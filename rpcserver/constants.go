@@ -260,6 +260,8 @@ const (
 	// feature rewards
 	getRewardFeature = "getrewardfeature"
 
+	getAllRewardReceivers = "getallrewardreceivers"
+
 	getTotalStaker = "gettotalstaker"
 )
 
